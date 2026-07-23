@@ -15,7 +15,7 @@ from tqdm import tqdm
 from openai import OpenAI
 
 NO_TITLE = "NO TITLE FOUND"
-MAX_TITLE_LEN = 120  # cap the title part of filenames well under filesystem limits
+MAX_TITLE_LEN = 120
 
 SYSTEM_PROMPT = """You are a document-indexing assistant. Your job: give one title to a scanned map, working only from its OCR text.
 
@@ -38,8 +38,6 @@ Right: Downtown Zoning Map"""
 
 
 def build_messages(ocr_text: str) -> list[dict]:
-    """System message holds the stable instructions (cacheable prefix); the user
-    message carries only the data plus a one-line task restatement."""
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {
@@ -50,8 +48,6 @@ def build_messages(ocr_text: str) -> list[dict]:
 
 
 def clean_title(raw: str) -> tuple[str, list[str]]:
-    """First non-empty line of the model output, stripped of wrapper cruft.
-    Returns (title, problems); title is "" if the output was unusable."""
     problems = []
     lines = [line.strip() for line in raw.strip().splitlines() if line.strip()]
     if not lines:
@@ -63,7 +59,6 @@ def clean_title(raw: str) -> tuple[str, list[str]]:
 
 
 def safe_filename(title: str) -> str:
-    """Make a title safe to use inside a filename on Windows/macOS/Linux."""
     title = re.sub(r'[<>:"/\\|?*\x00-\x1f]', " ", title)
     title = re.sub(r"\s+", " ", title).strip()
     return title[:MAX_TITLE_LEN].rstrip(" .")
@@ -94,9 +89,9 @@ def main():
                 model="deepseek-v4-pro",
                 messages=build_messages(cleaned_text),
                 stream=False,
-                temperature=0.0,  # deterministic extraction (DeepSeek lists 1.0 for data cleaning if you want variation)
-                max_tokens=100,   # output is a single line
-                extra_body={"thinking": {"type": "disabled"}},  # V4 defaults thinking ON; unneeded here, and it ignores temperature
+                max_tokens=2000,  # thinking tokens + the one-line title
+                reasoning_effort="high",
+                extra_body={"thinking": {"type": "enabled"}},
             )
             title, problems = clean_title(response.choices[0].message.content or "")
             for problem in problems:

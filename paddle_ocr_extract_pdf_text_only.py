@@ -126,6 +126,7 @@ def main():
         text_det_unclip_ratio=1.5,
         text_rec_score_thresh=0.5,
         lang="en",
+        device="gpu",
     )
 
     for pdf_path in tqdm(pdf_files, desc="PDFs", unit="pdf"):

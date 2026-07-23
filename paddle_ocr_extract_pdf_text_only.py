@@ -70,7 +70,7 @@ def extract_page(page, ocr, txt_out, label):
     res = ocr_out[0]
 
     # Save to image for testing purposes
-    res.save_to_img(save_path="imgs")
+    # res.save_to_img(save_path="imgs")
 
     res_texts = res.json["res"]["rec_texts"]
     res_boxes = res.json["res"]["rec_boxes"]

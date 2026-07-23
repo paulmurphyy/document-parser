@@ -1,6 +1,6 @@
 import subprocess, sys
  
-OCR_SCRIPT = "paddle_ocr_extract_pdf.py"
+OCR_SCRIPT = "paddle_ocr_extract_pdf_text_only.py"
 TITLE_SCRIPT = "deepseek_extract_title.py"
  
 def main():
